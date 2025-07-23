@@ -46,7 +46,9 @@ def buy_stock(symbol: str, quantity: int) -> str:
         You are about to buy {quantity} shares of {symbol} at {stock_price:.2f}/share 
         for a total of {total_price:.2f}.[/red]"""
     )
+    # at this point, control goes out of graph to caller
     user_response = interrupt("")
+
     if user_response.strip().lower() == "yes":
         return f"You bought {quantity} shares of {symbol} (at {stock_price:.2f}/share) for {total_price:.2f}."
     else:
@@ -102,15 +104,21 @@ sleep(1)
 
 # Step 2: buy the stock
 prompt: str = "Buy 25 stock of AMZN"
-# response = run_chatbot(prompt, config)
+# this invoke will result in call to the "buy_stock" tool
 response = graph.invoke(
     {"messages": [{"role": "user", "content": prompt}]},
     config=config,
 )
-# the above command is interrupted
+# we have an "interrupt()" call in the "buy_stock" tool function, which
+# immediately quits the tool & returns control to here
+# we ask user if he/she wants to proceed
 console.print("[red]Do you want to proceed (yes/no)?[/red]  ", end="")
 user_response = input()
+# user_response is passed back to the point where "interrupt" was called
+# in the "buy_stock" tool - the Command(...) call passes back the response
+# we get from user as a "return value" from the "interrupt(...)" call
 response = graph.invoke(Command(resume=user_response), config=config)
+# this is then the response returned from the "buy_stock" tool
 console.print(response["messages"][-1].content, style="cyan")
 # deliberate call to prevent rate limit errors
 sleep(1)
