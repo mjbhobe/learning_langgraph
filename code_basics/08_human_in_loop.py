@@ -11,6 +11,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import interrupt, Command
 
 from langsmith import traceable
 
@@ -39,7 +40,17 @@ def buy_stock(symbol: str, quantity: int) -> str:
     """buy stock with given symbol and quantity"""
     stock_price = get_stock_price(symbol)
     total_price = stock_price * quantity
-    return f"You bought {quantity} shares of {symbol} (at {stock_price:.2f}/share) for {total_price:.2f}."
+    # here I'd like to ask the human to approve the "buy" before proceeding
+    console.print(
+        f"""[red]
+        You are about to buy {quantity} shares of {symbol} at {stock_price:.2f}/share 
+        for a total of {total_price:.2f}.[/red]"""
+    )
+    user_response = interrupt("")
+    if user_response.strip().lower() == "yes":
+        return f"You bought {quantity} shares of {symbol} (at {stock_price:.2f}/share) for {total_price:.2f}."
+    else:
+        return f"Buying of {quantity} shares of {symbol} was cancelled."
 
 
 tools = [get_stock_price, buy_stock]
@@ -91,7 +102,15 @@ sleep(1)
 
 # Step 2: buy the stock
 prompt: str = "Buy 25 stock of AMZN"
-response = run_chatbot(prompt, config)
+# response = run_chatbot(prompt, config)
+response = graph.invoke(
+    {"messages": [{"role": "user", "content": prompt}]},
+    config=config,
+)
+# the above command is interrupted
+console.print("[red]Do you want to proceed (yes/no)?[/red]  ", end="")
+user_response = input()
+response = graph.invoke(Command(resume=user_response), config=config)
 console.print(response["messages"][-1].content, style="cyan")
 # deliberate call to prevent rate limit errors
 sleep(1)
