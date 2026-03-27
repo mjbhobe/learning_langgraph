@@ -1,13 +1,13 @@
 # Learning LangGraph
 
 ## Important Non-LangGraph Concepts
-It is important that we understand some of Python concepts relevant to LangGraph prohramming before we actually dive into LangGraph. This will help you understand the design & concepts of LangGraph better.
+It is important that we understand some of the Python concepts relevant to LangGraph prohramming before we actually dive into LangGraph. This will help you understand the design of LangGraph better.
 
 ###  Type Annotations
 Type annotations are a way to specify the expected type of a variable, function parameter, or function return value. They are _not enforced_ by the Python interpreter, but they can be used by static analysis tools to detect type errors.
 
 ### Dictionaries
-Granted! Dictionaries are standard Python data structures. However, in the context of LangGraph, we will be using them to store and pass data between nodes in a graph, hence it is important to understand how they work.
+Dictionaries are standard Python data structures. However, in the context of LangGraph, we will be using them to store and pass data between nodes in a graph, hence it is important to understand how they work.
 
 Here is a sample dictionary:
 ```python
